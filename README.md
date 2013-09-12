@@ -19,7 +19,7 @@ If you want to skip the build process of this Adapter please note that in the [d
 Otherwise follow these steps:
 
 *  Get the ls-adapter-interface.jar, and log4j-1.2.15.jar files from the [latest Lightstreamer distribution](http://www.lightstreamer.com/download).
-*  Create the LS_WebTelemetry_DataAdapter.jar jar filewith commands like these:
+*  Create the LS_WebTelemetry_DataAdapter.jar file with commands like these:
 ```sh
  >javac -source 1.7 -target 1.7 -nowarn -g -classpath compile_libs/log4j-1.2.15.jar;compile_libs/ls-adapter-interface/ls-adapter-interface.jar; -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/web_telemetry/DataProviderImpl.java
  
