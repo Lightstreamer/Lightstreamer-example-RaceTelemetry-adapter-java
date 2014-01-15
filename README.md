@@ -76,14 +76,14 @@ Please test your Adapter with one of the clients in the [list](https://github.co
 
 # See Also #
 
-## Clients using this Adapter ##
+## Clients Using This Adapter ##
 <!-- START RELATED_ENTRIES -->
 
 * [Lightstreamer - Race Telemetry Demo - HTML Client](https://github.com/Weswit/Lightstreamer-example-RaceTelemetry-client-javascript)
 
 <!-- END RELATED_ENTRIES -->
 
-## Related projects ##
+## Related Projects ##
 
 * [Lightstreamer - Reusable Metadata Adapters - Java Adapter](https://github.com/Weswit/Lightstreamer-example-ReusableMetadata-adapter-java)
 
