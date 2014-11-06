@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2013 Weswit s.r.l.
+ * Copyright 2014 Weswit s.r.l.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
-import com.lightstreamer.interfaces.data.DataProvider;
+import com.lightstreamer.interfaces.data.SmartDataProvider;
 import com.lightstreamer.interfaces.data.FailureException;
 import com.lightstreamer.interfaces.data.ItemEventListener;
 import com.lightstreamer.interfaces.data.SubscriptionException;
 
-public class DataProviderImpl implements DataProvider {
+public class DataProviderImpl implements SmartDataProvider {
 
     /**
      * Private logger; a specific "LS_demos_Logger.WebTelemetry" category
@@ -79,15 +79,34 @@ public class DataProviderImpl implements DataProvider {
     }
 
     public synchronized void unsubscribe(String itemName) {
-    	logger.debug("Chiamata UNsubscribe, itemName: "+itemName);
+        String[] splits = itemName.split("_"); 
+        String key = itemName.substring(itemName.indexOf("_"));
+        DataGenerator dataGenerator = null;
         
-    	DataGenerator dataGenerator= (DataGenerator) items.get(itemName);
-        if (dataGenerator != null) {
-        	dataGenerator.close();
-        	dataGenerator.interrupt();
-            items.remove(itemName);
+        logger.debug("Unsusbcribe received key: " + key + "; item type: " + splits[0] + ".");
+        
+        synchronized (items) {
+            if ( items.containsKey(key) ) {
+                dataGenerator = (DataGenerator) items.get(key);
+                
+                if (splits[0].equals("L")) {
+                    dataGenerator.setL_handle(null);
+                } else if (splits[0].equals("P")) {
+                    dataGenerator.setP_handle(null);
+                } else {
+                    // skip.
+                }
+                
+                if (dataGenerator.isTerminable()) {
+            
+                    logger.debug("Stop race!");
+                    
+                    dataGenerator.close();
+                    dataGenerator.interrupt();
+                    items.remove(key);
+                }
+            }
         }
-
     }
 
     public boolean isSnapshotAvailable(String itemName) {
@@ -98,11 +117,33 @@ public class DataProviderImpl implements DataProvider {
 	 * @see com.lightstreamer.interfaces.data.DataProvider#subscribe(java.lang.String, boolean)
 	 */
 	public void subscribe(String itemName, boolean needsIterator) throws SubscriptionException, FailureException {
-	    DataGenerator dataGenerator = new DataGenerator(itemName,listener);
+	    throw new SubscriptionException("Method not supported.");
+	}
+	
+	public void subscribe(String itemName, Object itemHandle, boolean needsIterator) throws SubscriptionException {
+	    String[] splits = itemName.split("_"); 
+	    String key = itemName.substring(itemName.indexOf("_"));
+	    DataGenerator dataGenerator = null;
 	    
-	     
-	     items.put(itemName, dataGenerator);
-		
+	    logger.debug("Susbcribe received key: " + key + "; item type: " + splits[0] + ".");
+	    
+	    synchronized (items) {
+    	    if ( items.containsKey(key) ) {
+    	        dataGenerator = (DataGenerator) items.get(key); 
+    	    } else {
+    	        dataGenerator = new DataGenerator(key,listener);
+    	        items.put(key, dataGenerator);
+    	    }
+	    }
+	    
+	    if (splits[0].equals("L")) {
+	        dataGenerator.setL_handle(itemHandle);
+	    } else if (splits[0].equals("P")) {
+	        dataGenerator.setP_handle(itemHandle);
+	    } else {
+	        throw new SubscriptionException("Item not supported.");
+	    }
+	    
 	}
 	
   

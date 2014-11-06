@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2013 Weswit s.r.l.
+ * Copyright 2014 Weswit s.r.l.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,23 +26,45 @@ import com.lightstreamer.interfaces.data.ItemEventListener;
 public class DataGenerator extends Thread {
 
 	private ItemEventListener listener=null;
-	private String itemName="";
+
+    private Object L_handle=null;
+	private Object P_handle=null;
+	private String key=null;
+	
 	private Logger logger=Logger.getLogger(DataProviderImpl.LOGGER_NAME);
 	private static final int millis=100;
 	private boolean closed = false;
+	private boolean started = false;
 	   
 	 
-	 public DataGenerator(String itemName, ItemEventListener listener)
-	{   logger.debug("itemName: "+itemName);
+	public DataGenerator(String key, ItemEventListener listener)
+	{   logger.debug("Driver: "+key);
 		
-	if(itemName.equalsIgnoreCase("P_driver_1"))
-		{
-			this.itemName=itemName;
-			this.listener=listener;
-			this.start();
-		}
+		this.key=key;
+		this.listener=listener;
+			
 	}//DataGenerator
 	
+   public void setL_handle(Object l_handle) {
+        L_handle = l_handle;
+    }
+
+    public void setP_handle(Object p_handle) {
+        P_handle = p_handle;
+        if ( !started ) {
+            this.start();
+            started = true;
+        }
+    }
+	
+    public boolean isTerminable() {
+        if ( (P_handle == null) && (L_handle == null) ) {
+            return true;
+        }
+        
+        return false;
+    }
+    
 	public void run()
 	{  
 		int lap = 1;
@@ -50,7 +72,7 @@ public class DataGenerator extends Thread {
 		PacketItem packetItem=null;
 		LapItem lapItem=null;
 		
-
+		logger.debug("Start race!");
 		
 		while(! closed)
 		{ 
@@ -67,11 +89,15 @@ public class DataGenerator extends Thread {
 		  	lap = currLap;
 		  
 		  	lapItem=new LapItem(lapItem,time);
-		  	listener.update("L_driver_1",lapItem,false);
+		  	if (L_handle != null) {
+		  	    listener.smartUpdate(L_handle,lapItem,false);
+		  	}
 					
 		  }
 		  
-		   listener.update(itemName,packetItem,false);
+		  if (P_handle != null) {
+		      listener.smartUpdate(P_handle,packetItem,false);
+		  }
 			
 		    try {
 				sleep(millis);
