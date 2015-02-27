@@ -67,7 +67,7 @@ public class DataProviderImpl implements SmartDataProvider {
             }
     	    logger = Logger.getLogger(LOGGER_NAME);
 
-    	    logger.log(Level.INFO, "WebTelemetryF1 Pronto");
+    	    logger.log(Level.INFO, "WebTelemetryF1 ready");
 		} catch (Exception e) {
 			System.out.println("UNABLE TO CONFIGURE WEB TELEMETRY APPLICATION!!!:"+e.getMessage());
 		} 	
