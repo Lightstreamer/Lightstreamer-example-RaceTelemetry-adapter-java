@@ -77,7 +77,7 @@ To build your own version of `LS_WebTelemetry_DataAdapter.jar` instead of using 
 ```sh
  >javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/log4j-1.2.17.jar;lib/ls-adapter-interface/ls-adapter-interface.jar; -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/web_telemetry/DataProviderImpl.java
  
- >jar cvf LS_WebTelemetry_DataAdapter.jar -C tmp_classes src
+ >jar cvf LS_WebTelemetry_DataAdapter.jar -C tmp_classes com
 ```
 
 ## See Also
