@@ -75,9 +75,9 @@ To build your own version of `LS_WebTelemetry_DataAdapter.jar` instead of using 
 * Get the `log4j-1.2.17.jar` file from [Apache log4j](https://logging.apache.org/log4j/1.2/) and copy it into the `lib` folder.
 * Create the `LS_WebTelemetry_DataAdapter.jar` file with commands like these:
 ```sh
- >javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/log4j-1.2.17.jar;lib/ls-adapter-interface/ls-adapter-interface.jar; -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/web_telemetry/DataProviderImpl.java
- 
- >jar cvf LS_WebTelemetry_DataAdapter.jar -C tmp_classes com
+ > mkdir tmp_classes
+ > javac -source 1.7 -target 1.7 -nowarn -g -classpath lib/log4j-1.2.17.jar;lib/ls-adapter-interface.jar; -sourcepath src -d tmp_classes src/com/lightstreamer/adapters/web_telemetry/DataProviderImpl.java
+ > jar cvf LS_WebTelemetry_DataAdapter.jar -C tmp_classes com
 ```
 
 ## See Also
