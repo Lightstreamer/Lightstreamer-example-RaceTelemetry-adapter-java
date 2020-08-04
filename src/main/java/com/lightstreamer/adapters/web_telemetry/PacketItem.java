@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
-
 import com.lightstreamer.interfaces.data.ItemEvent;
 
 public class PacketItem implements ItemEvent {
@@ -35,8 +33,6 @@ public class PacketItem implements ItemEvent {
 			"Gear_output", "ABS", "LAP" };
 
 	public static final int FIELDS_NRO = FIELDS.length;
-
-	private static Logger logger = Logger.getLogger(DataProviderImpl.LOGGER_NAME);
 
 	private static final Random random = new Random();
 	private static int ref=215;

@@ -19,7 +19,8 @@
 package com.lightstreamer.adapters.web_telemetry;
 
 import java.util.Date;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.lightstreamer.interfaces.data.ItemEventListener;
 
@@ -31,7 +32,8 @@ public class DataGenerator extends Thread {
 	private Object P_handle=null;
 	private String key=null;
 	
-	private Logger logger=Logger.getLogger(DataProviderImpl.LOGGER_NAME);
+	private Logger logger = LogManager.getLogger(DataProviderImpl.LOGGER_NAME);
+	
 	private static final int millis=100;
 	private boolean closed = false;
 	private boolean started = false;

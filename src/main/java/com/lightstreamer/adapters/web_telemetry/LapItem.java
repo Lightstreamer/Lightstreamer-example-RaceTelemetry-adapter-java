@@ -20,7 +20,6 @@ package com.lightstreamer.adapters.web_telemetry;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import org.apache.log4j.Logger;
 
 import com.lightstreamer.interfaces.data.ItemEvent;
 
@@ -29,10 +28,6 @@ public class LapItem implements ItemEvent {
 	public static final String[] FIELDS={"lap","lapTime","avgSpeed","avgSpeedTot"};
 	public static final int FIELDS_NRO = FIELDS.length;
 
-	
-	private Logger logger = Logger.getLogger(DataProviderImpl.LOGGER_NAME);
-
-	
 	public LapItem()
 	{ 	this.item = new HashMap();
 	}

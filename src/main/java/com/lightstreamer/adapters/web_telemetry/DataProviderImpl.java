@@ -24,9 +24,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.lightstreamer.interfaces.data.SmartDataProvider;
 import com.lightstreamer.interfaces.data.FailureException;
@@ -55,19 +54,8 @@ public class DataProviderImpl implements SmartDataProvider {
 
     public void init(Map params, File configDir) {
     	try {
-            String logConfig = (String) params.get("log_config");
-            if (logConfig != null) {
-                File logConfigFile = new File(configDir, logConfig);
-                String logRefresh = (String) params.get("log_config_refresh_seconds");
-                if (logRefresh != null) {
-                    DOMConfigurator.configureAndWatch(logConfigFile.getAbsolutePath(), Integer.parseInt(logRefresh) * 1000);
-                } else {
-                    DOMConfigurator.configure(logConfigFile.getAbsolutePath());
-                }
-            }
-    	    logger = Logger.getLogger(LOGGER_NAME);
-
-    	    logger.log(Level.INFO, "WebTelemetryF1 ready");
+            logger = LogManager.getLogger(LOGGER_NAME);
+    	    logger.info("WebTelemetryF1 ready");
 		} catch (Exception e) {
 			System.out.println("UNABLE TO CONFIGURE WEB TELEMETRY APPLICATION!!!:"+e.getMessage());
 		} 	
