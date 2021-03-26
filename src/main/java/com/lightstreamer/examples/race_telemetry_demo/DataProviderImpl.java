@@ -16,7 +16,7 @@
  *
  */
  
-package com.lightstreamer.adapters.web_telemetry;
+package com.lightstreamer.examples.race_telemetry_demo;
 
 import java.io.File;
 import java.util.HashMap;
