@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.lightstreamer.examples</groupId>
-  <artifactId>example-racetelemetry-adapter-java</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <artifactId>racetelemetry-adapter-java</artifactId>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
-  <name>example-raceTelemetry-adapter-java</name>
-  <url>http://maven.apache.org</url>
+  <name>Lightstreamer Race Telemetry Demo Java Adapter</name>
+  <url>https://github.come/Lightstreamer/Lightstreamer-example-RaceTelemetry-adapter-java</url>
 
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -44,7 +44,7 @@
     <repository>
       <id>github</id>
       <name>GitHub Lightstreamer Apache Maven Packages</name>
-      <url>https://maven.pkg.github.com/Lightstreamer/Lightstreamer-example-RaceTelemtry-adapter-java</url>
+      <url>https://maven.pkg.github.com/Lightstreamer/Lightstreamer-example-RaceTelemetry-adapter-java</url>
     </repository>
   </distributionManagement>
 
