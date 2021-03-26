@@ -16,7 +16,7 @@
  *
  */
  
-package com.lightstreamer.examples.race_telemetry_demo;
+package com.lightstreamer.examples.race_telemetry_demo.adapters;
 
 import java.util.Date;
 import org.apache.logging.log4j.LogManager;
