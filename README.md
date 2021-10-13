@@ -43,7 +43,7 @@ The `adapters.xml` file for the *Race Telemetry Demo*, should look like:
     </metadata_provider>
     
     <data_provider>
-      <adapter_class>com.lightstreamer.adapters.web_telemetry.DataProviderImpl</adapter_class>
+      <adapter_class>com.lightstreamer.examples.race_telemetry_demo.DataProviderImpl</adapter_class>
       <param name="log_config_refresh_seconds">10</param>
     </data_provider>
     
