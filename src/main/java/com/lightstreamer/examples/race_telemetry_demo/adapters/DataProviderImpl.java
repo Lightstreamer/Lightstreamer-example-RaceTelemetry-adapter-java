@@ -23,16 +23,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.lightstreamer.interfaces.data.SmartDataProvider;
-import com.lightstreamer.interfaces.data.FailureException;
-import com.lightstreamer.interfaces.data.ItemEventListener;
-import com.lightstreamer.interfaces.data.SubscriptionException;
+import com.lightstreamer.adapter.common.InitException;
+import com.lightstreamer.adapter.common.Mode;
+import com.lightstreamer.adapter.data.DataAdapter;
+import com.lightstreamer.adapter.data.ItemListener;
+import com.lightstreamer.adapter.data.ItemManager;
+import com.lightstreamer.adapter.data.SubscriptionException;
 
-public class DataProviderImpl implements SmartDataProvider {
+public class DataProviderImpl implements DataAdapter {
 
     /**
      * Private logger; a specific "LS_demos_Logger.WebTelemetry" category
@@ -43,16 +47,15 @@ public class DataProviderImpl implements SmartDataProvider {
 	
     private Properties lsProperties=new Properties();
 	
-	private ItemEventListener listener;
     private Random random;
-    private HashMap items=new HashMap();
+    private HashMap<String, DataGenerator> items=new HashMap<>();
     
 
     public DataProviderImpl() {
         random = new Random();
     }
 
-    public void init(Map params, File configDir) {
+    public void init(Map<String, String> params, File configDir) throws InitException {
     	try {
             logger = LogManager.getLogger(LOGGER_NAME);
     	    logger.info("WebTelemetryF1 ready");
@@ -61,79 +64,107 @@ public class DataProviderImpl implements SmartDataProvider {
 		} 	
     }
 
-    
-    public void setListener(ItemEventListener listener) {
-        this.listener = listener;
+    @Override
+    public CompletionStage<ItemManager> getItemManager(String itemName)
+            throws SubscriptionException {
+        String[] splits = itemName.split("_");
+
+        if (!splits[0].equals("L") && !splits[0].equals("P")) {
+            throw new SubscriptionException("Item not supported: " + itemName);
+        }
+
+        Mode mode = splits[0].equals("L") ? Mode.DISTINCT : Mode.MERGE;
+
+        return CompletableFuture.completedFuture(new ItemManager() {
+
+            @Override
+            public Mode getSupportedMode() {
+                return mode;
+            }
+
+            @Override
+            public Integer getDistinctSnapshotLength() {
+                return mode == Mode.DISTINCT ? 30 : null;
+            }
+
+            @Override
+            public CompletionStage<Void> subscribe(ItemListener listener) {
+                String[] subSplits = itemName.split("_");
+                String subKey = itemName.substring(itemName.indexOf("_"));
+                DataGenerator dataGenerator = null;
+
+                logger.debug("Susbcribe received key: " + subKey + "; item type: " + subSplits[0] + ".");
+
+                synchronized (items) {
+                    if ( items.containsKey(subKey) ) {
+                        dataGenerator = items.get(subKey);
+                    } else {
+                        dataGenerator = new DataGenerator(subKey);
+                        items.put(subKey, dataGenerator);
+                    }
+                }
+
+                if (subSplits[0].equals("L")) {
+                    dataGenerator.setL_listener(listener);
+                } else if (subSplits[0].equals("P")) {
+                    dataGenerator.setP_listener(listener);
+                }
+
+                listener.endOfSnapshot();
+                return CompletableFuture.completedFuture(null);
+            }
+
+            @Override
+            public boolean isSnapshotAvailable() {
+                return true;
+            }
+
+            @Override
+            public CompletionStage<Void> unsubscribe() {
+                String[] unSplits = itemName.split("_");
+                String unKey = itemName.substring(itemName.indexOf("_"));
+                DataGenerator dataGenerator = null;
+
+                logger.debug("Unsusbcribe received key: " + unKey + "; item type: " + unSplits[0] + ".");
+
+                synchronized (DataProviderImpl.this) {
+                    synchronized (items) {
+                        if ( items.containsKey(unKey) ) {
+                            dataGenerator = items.get(unKey);
+
+                            if (unSplits[0].equals("L")) {
+                                dataGenerator.setL_listener(null);
+                            } else if (unSplits[0].equals("P")) {
+                                dataGenerator.setP_listener(null);
+                            } else {
+                                // skip.
+                            }
+
+                            if (dataGenerator.isTerminable()) {
+
+                                logger.debug("Stop race!");
+
+                                dataGenerator.close();
+                                dataGenerator.interrupt();
+                                items.remove(unKey);
+                            }
+                        }
+                    }
+                }
+                return CompletableFuture.completedFuture(null);
+            }
+        });
     }
 
-    public synchronized void unsubscribe(String itemName) {
-        String[] splits = itemName.split("_"); 
-        String key = itemName.substring(itemName.indexOf("_"));
-        DataGenerator dataGenerator = null;
-        
-        logger.debug("Unsusbcribe received key: " + key + "; item type: " + splits[0] + ".");
-        
+    @Override
+    public void shutdown() {
         synchronized (items) {
-            if ( items.containsKey(key) ) {
-                dataGenerator = (DataGenerator) items.get(key);
-                
-                if (splits[0].equals("L")) {
-                    dataGenerator.setL_handle(null);
-                } else if (splits[0].equals("P")) {
-                    dataGenerator.setP_handle(null);
-                } else {
-                    // skip.
-                }
-                
-                if (dataGenerator.isTerminable()) {
-            
-                    logger.debug("Stop race!");
-                    
-                    dataGenerator.close();
-                    dataGenerator.interrupt();
-                    items.remove(key);
-                }
+            for (DataGenerator dataGenerator : items.values()) {
+                dataGenerator.close();
+                dataGenerator.interrupt();
             }
+            items.clear();
         }
     }
-
-    public boolean isSnapshotAvailable(String itemName) {
-        return true;
-    }
-
-	/* (non-Javadoc)
-	 * @see com.lightstreamer.interfaces.data.DataProvider#subscribe(java.lang.String, boolean)
-	 */
-	public void subscribe(String itemName, boolean needsIterator) throws SubscriptionException, FailureException {
-	    throw new SubscriptionException("Method not supported.");
-	}
-	
-	public void subscribe(String itemName, Object itemHandle, boolean needsIterator) throws SubscriptionException {
-	    String[] splits = itemName.split("_"); 
-	    String key = itemName.substring(itemName.indexOf("_"));
-	    DataGenerator dataGenerator = null;
-	    
-	    logger.debug("Susbcribe received key: " + key + "; item type: " + splits[0] + ".");
-	    
-	    synchronized (items) {
-    	    if ( items.containsKey(key) ) {
-    	        dataGenerator = (DataGenerator) items.get(key); 
-    	    } else {
-    	        dataGenerator = new DataGenerator(key,listener);
-    	        items.put(key, dataGenerator);
-    	    }
-	    }
-	    
-	    if (splits[0].equals("L")) {
-	        dataGenerator.setL_handle(itemHandle);
-	    } else if (splits[0].equals("P")) {
-	        dataGenerator.setP_handle(itemHandle);
-	    } else {
-	        throw new SubscriptionException("Item not supported.");
-	    }
-	    
-	}
-	
-  
 
 }

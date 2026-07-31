@@ -19,33 +19,30 @@
 package com.lightstreamer.examples.race_telemetry_demo.adapters;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
-import com.lightstreamer.interfaces.data.ItemEvent;
-
-public class LapItem implements ItemEvent {
-	HashMap item = null;
+public class LapItem {
+	HashMap<String, String> item = null;
 	public static final String[] FIELDS={"lap","lapTime","avgSpeed","avgSpeedTot"};
 	public static final int FIELDS_NRO = FIELDS.length;
 
 	public LapItem()
-	{ 	this.item = new HashMap();
+	{ 	this.item = new HashMap<>();
 	}
 	
-	public LapItem(HashMap item)
+	public LapItem(HashMap<String, String> item)
 	{ 	this.item = item;
 	}
 	
 	public LapItem(String[] fieldsValue) 
 	{
-		item = new HashMap();
+		item = new HashMap<>();
 		for(int i=0;i<fieldsValue.length;i++)
 		item.put(FIELDS[i], fieldsValue[i]);
 	}
 
 	public LapItem(float[] fieldsValue) 
 	{
-		item = new HashMap();
+		item = new HashMap<>();
 		for(int i=0;i<fieldsValue.length;i++)
 		item.put(FIELDS[i], String.valueOf(fieldsValue[i]));
 	}
@@ -53,7 +50,7 @@ public class LapItem implements ItemEvent {
 	
 	public LapItem(LapItem lapItem,long time) 
 	{
-		item = new HashMap();
+		item = new HashMap<>();
 		if(lapItem==null)
 		{ item.put(FIELDS[0],String.valueOf(1));
 		  item.put(FIELDS[1],String.valueOf(time));
@@ -91,29 +88,11 @@ public class LapItem implements ItemEvent {
 	public void setValue(String field,String value)
 	{ item.put(field,value);
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.lightstreamer.interfaces.data.ItemEvent#getNames()
-	 */
-	public Iterator getNames() {
-		return item.keySet().iterator();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.lightstreamer.interfaces.data.ItemEvent#getValue(java.lang.String)
-	 */
-	public Object getValue(String fieldName) {
-		return item.get(fieldName);
-	}
 
 	public String toString()
 	{ StringBuffer sb=new StringBuffer();
 	 for(int i=0;i<FIELDS_NRO;i++)
-	 	sb.append(FIELDS[i]+": "+this.getValue(FIELDS[i])+"\n");
+	 	sb.append(FIELDS[i]+": "+item.get(FIELDS[i])+"\n");
 	 return sb.toString();
 	 
 	}

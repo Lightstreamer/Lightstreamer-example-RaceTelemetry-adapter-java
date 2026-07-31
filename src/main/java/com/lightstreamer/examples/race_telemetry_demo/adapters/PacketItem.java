@@ -20,13 +20,10 @@ package com.lightstreamer.examples.race_telemetry_demo.adapters;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Random;
 
-import com.lightstreamer.interfaces.data.ItemEvent;
-
-public class PacketItem implements ItemEvent {
-	HashMap item = null;
+public class PacketItem {
+	HashMap<String, String> item = null;
 		
 
 	public static final String[] FIELDS = { "TIME", "Distance", "Speed", "Rpm",
@@ -35,23 +32,23 @@ public class PacketItem implements ItemEvent {
 	public static final int FIELDS_NRO = FIELDS.length;
 
 	private static final Random random = new Random();
-	private static int ref=215;
+	private static final int ref=215;
 	
-	private static double limit = 135;     // Max difference compared to ref. price
-	public static double lapLenght = 4.8d; // Length of a virtual lap
+	private static final double limit = 135;     // Max difference compared to ref. price
+	public static final double lapLenght = 4.8d; // Length of a virtual lap
 	
-	private static int startABS=11323;
+	private static final int startABS=11323;
 	
-	private static int[] soglieMarcia = { 90, 150, 220, 300, 320 };
-	private static int[] rapportiMarcia = { 250, 400, 300, 250, 1000, 660 };
-	private static int giriMin = 2000;
+	private static final int[] soglieMarcia = { 90, 150, 220, 300, 320 };
+	private static final int[] rapportiMarcia = { 250, 400, 300, 250, 1000, 660 };
+	private static final int giriMin = 2000;
 	
 	/**
 	 * @param packetItem
 	 * @param simulationStart
 	 */
 	public PacketItem(PacketItem packetItem, long simulationStart) {
-		item = new HashMap();
+		item = new HashMap<>();
 		if(packetItem==null)
 		{	//TIME
 			item.put(FIELDS[0], String.valueOf(0));
@@ -148,26 +145,11 @@ public class PacketItem implements ItemEvent {
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see com.lightstreamer.interfaces.data.ItemEvent#getNames()
 	 */
-	public Iterator getNames() {
-		return item.keySet().iterator();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.lightstreamer.interfaces.data.ItemEvent#getValue(java.lang.String)
-	 */
-	public Object getValue(String fieldName) {
-		return item.get(fieldName);
-	}
-
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < FIELDS_NRO; i++)
-			sb.append(FIELDS[i] + ": " + this.getValue(FIELDS[i]));
+			sb.append(FIELDS[i] + ": " + item.get(FIELDS[i]));
 		return sb.toString();
 
 	}

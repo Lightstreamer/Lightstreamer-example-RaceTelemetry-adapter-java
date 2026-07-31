@@ -22,14 +22,12 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.lightstreamer.interfaces.data.ItemEventListener;
+import com.lightstreamer.adapter.data.ItemListener;
 
 public class DataGenerator extends Thread {
 
-	private ItemEventListener listener=null;
-
-    private Object L_handle=null;
-	private Object P_handle=null;
+	private volatile ItemListener l_listener=null;
+	private volatile ItemListener p_listener=null;
 	private String key=null;
 	
 	private Logger logger = LogManager.getLogger(DataProviderImpl.LOGGER_NAME);
@@ -39,20 +37,19 @@ public class DataGenerator extends Thread {
 	private boolean started = false;
 	   
 	 
-	public DataGenerator(String key, ItemEventListener listener)
+	public DataGenerator(String key)
 	{   logger.debug("Driver: "+key);
 		
 		this.key=key;
-		this.listener=listener;
-			
+		
 	}//DataGenerator
 	
-   public void setL_handle(Object l_handle) {
-        L_handle = l_handle;
+   public void setL_listener(ItemListener l_listener) {
+        this.l_listener = l_listener;
     }
 
-    public void setP_handle(Object p_handle) {
-        P_handle = p_handle;
+    public void setP_listener(ItemListener p_listener) {
+        this.p_listener = p_listener;
         if ( !started ) {
             this.start();
             started = true;
@@ -60,7 +57,7 @@ public class DataGenerator extends Thread {
     }
 	
     public boolean isTerminable() {
-        if ( (P_handle == null) && (L_handle == null) ) {
+        if ( (p_listener == null) && (l_listener == null) ) {
             return true;
         }
         
@@ -91,14 +88,14 @@ public class DataGenerator extends Thread {
 		  	lap = currLap;
 		  
 		  	lapItem=new LapItem(lapItem,time);
-		  	if (L_handle != null) {
-		  	    listener.smartUpdate(L_handle,lapItem,false);
+		  	if (l_listener != null) {
+	  	        l_listener.update(lapItem.item);
 		  	}
 					
 		  }
 		  
-		  if (P_handle != null) {
-		      listener.smartUpdate(P_handle,packetItem,false);
+		  if (p_listener != null) {
+	          p_listener.update(packetItem.item);
 		  }
 			
 		    try {
